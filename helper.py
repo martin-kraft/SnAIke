@@ -80,13 +80,38 @@ def checkForward(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
 
 
 # Takes the direction and returns all possible moves
-def possibleMoves(direction):
-    if (direction == "Up"):
-        moves = {"Up", "Left", "Right"}
-    elif (direction == "Down"):
-        moves = {"Down", "Left", "Right"}
-    elif (direction == "Left"):
-        moves = {"Left", "Up", "Down"}
-    else:  # "direction == "Right"
-        moves = {"Right", "Up", "Down"}
-    return moves
+# def possibleMoves(direction):
+#     if (direction == "Up"):
+#         moves = {"Up", "Left", "Right"}
+#     elif (direction == "Down"):
+#         moves = {"Down", "Left", "Right"}
+#     elif (direction == "Left"):
+#         moves = {"Left", "Up", "Down"}
+#     else:  # "direction == "Right"
+#         moves = {"Right", "Up", "Down"}
+#     return moves
+
+# Convert direction relative to snake's current direction
+def convertDirectionRelativeToSnake(direction, newDirection):
+    if direction == "Right" and newDirection == "Up":
+        result = "Left"
+    elif direction == "Rigth" and newDirection == "Down":
+        result = "Right"
+    elif direction == "Right" and newDirection == "Right":
+        result = "Down"
+
+    elif direction == "Left" and newDirection == "Up":
+        result = "Right"
+    elif direction == "Left" and newDirection == "Down":
+        result = "Left"
+    elif direction == "Left" and newDirection == "Left":
+        result = "Down"
+
+    elif direction == "Down" and newDirection == "Left":
+        result = "Right"
+    elif direction == "Down" and newDirection == "Right":
+        result = "Left"
+    else:
+        result = "Forward"
+
+    return result

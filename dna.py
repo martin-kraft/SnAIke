@@ -65,10 +65,10 @@ class DNA():
             if valuesOutput[i] > biggestValue:
                 biggestValue = valuesOutput[i]
                 index = i
-        switch = {"Left": 0,
-                  "Right": 1,
-                  "Forward": 2}
-        return switch.get(index)
+        switch = {0 : "Left",
+                  1 : "Right",
+                  2 : "Forward"}
+        return helper.convertDirectionRelativeToSnake(direction, switch.get(index))
         # return self.matrix.dot(inputVector)
 
     # Create matrix with values between -1 and 1(exclusive)

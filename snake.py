@@ -92,20 +92,29 @@ class Snake(tk.Canvas):
             score = self.find_withtag("score")
             self.itemconfigure(score, text=f"Score: {self.score}", tag="score")
 
-    def moveSnake(self):
+    def moveSnake(self, nextComputerMove):
         headX, headY = self.snakePositions[0]
-        if self.notYetDirection == "Left":
+
+        # Check for computer input 
+        if nextComputerMove:
+            if nextComputerMove != "Forward":
+                self.notYetDirection = nextComputerMove
+
+        # Human player and computer inputs 
+        if self.notYetDirection == "Left" or nextComputerMove == "Left":
             newHeadPosition = (
                 headX - MOVE_INCREMENT, headY)
-        elif self.notYetDirection == "Right":
+        elif self.notYetDirection == "Right" or nextComputerMove == "Right":
             newHeadPosition = (
                 headX + MOVE_INCREMENT, headY)
-        elif self.notYetDirection == "Down":
+        elif self.notYetDirection == "Down" or nextComputerMove == "Down":
             newHeadPosition = (
                 headX, headY + MOVE_INCREMENT)
-        elif self.notYetDirection == "Up":
+        elif self.notYetDirection == "Up" or nextComputerMove == "Up":
             newHeadPosition = (
                 headX, headY - MOVE_INCREMENT)
+        elif nextComputerMove == "Forward":
+            pass # Just keep the snake moving where it is already heading
 
         self.snakePositions = [newHeadPosition] + self.snakePositions[:-1]
 
@@ -135,9 +144,9 @@ class Snake(tk.Canvas):
         if self.checkCollisions():
             self.endGame()
 
-        self.moveSnake()
         nextDecision = self.dna.decision(self.snakePositions, self.foodPosition, self.direction)
         print(nextDecision)
+        self.moveSnake(nextDecision)
         self.checkFoodCollision()
         self.after(GAME_SPEED, self.performActions)
 
