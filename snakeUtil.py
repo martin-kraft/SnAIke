@@ -14,11 +14,10 @@ def calcDegree(snakeX, snakeY, foodX, foodY, direction):
     }
     return math.sin(calc + switch.get(direction))
 
+
 # Returns 1 if a wall or body part is on the left side of the snake's head or 0 if it is clear,
 # in relation to the moving direction
 # If the snake is moving "down", then the right side is checked (from the players perspective)
-
-
 def checkLeft(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
     result = 0
     snakeX, snakeY = snakePositions[0]
@@ -79,18 +78,6 @@ def checkForward(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
     return result
 
 
-# Takes the direction and returns all possible moves
-# def possibleMoves(direction):
-#     if (direction == "Up"):
-#         moves = {"Up", "Left", "Right"}
-#     elif (direction == "Down"):
-#         moves = {"Down", "Left", "Right"}
-#     elif (direction == "Left"):
-#         moves = {"Left", "Up", "Down"}
-#     else:  # "direction == "Right"
-#         moves = {"Right", "Up", "Down"}
-#     return moves
-
 # Convert direction relative to snake's current direction
 def convertDirectionRelativeToSnake(direction, newDirection):
     if direction == "Right" and newDirection == "Up":
@@ -113,5 +100,4 @@ def convertDirectionRelativeToSnake(direction, newDirection):
         result = "Left"
     else:
         result = "Forward"
-
     return result

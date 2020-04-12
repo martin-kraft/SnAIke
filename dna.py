@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import helper
+import snakeUtil
 # Creates the population of snakes with their own DNA.
 # DNA for each snake contains matrixes with float values between -1 to 1.
 
@@ -13,44 +13,47 @@ import helper
 
 
 class DNA():
-    def __init__(self, boardSize, textSize, moveIncrement):
-        self.BOARD_SIZE = boardSize
-        self.MOVE_INCREMENT = moveIncrement
-        self.TEXT_SIZE = textSize
-        self.TO_ADD = moveIncrement / 2
+    def __init__(self):
+        # self.BOARD_SIZE = boardSize
+        # self.MOVE_INCREMENT = moveIncrement
+        # self.TEXT_SIZE = textSize
+        # self.TO_ADD = moveIncrement / 2
 
-        # Create matrix for this particular snake
+        self.fitnessValue = 0
+
+        # Create matrix (brain) for this particular snake
         self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
 
-    def performance(self):
-        # Should also track how many steps the snake did before dying
-        pass
+    def fitness(self, score, steps):
+        # print("score: ", score, "steps: ", steps)
+        self.fitnessValue = 2**score / steps
 
     # After each move, new calculations are made for new inputs
-    def decision(self, snakePositions, foodPosition, direction):
+    def decision(self, snakePositions, foodPosition, direction, board):
         # check left, right and in front of snake
         inputVector = []
 
         ############################# Collision #############################
-        inputVector.append(helper.checkLeft(snakePositions, self.MOVE_INCREMENT,
-                                            self.BOARD_SIZE, self.TEXT_SIZE, direction))
-        inputVector.append(helper.checkRight(snakePositions, self.MOVE_INCREMENT,
-                                             self.BOARD_SIZE, self.TEXT_SIZE, direction))
-        inputVector.append(helper.checkForward(snakePositions, self.MOVE_INCREMENT,
-                                               self.BOARD_SIZE, self.TEXT_SIZE, direction))
+        inputVector.append(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
+                                               board.BOARD_SIZE, board.TEXT_SIZE, direction))
+        inputVector.append(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
+                                                board.BOARD_SIZE, board.TEXT_SIZE, direction))
+        inputVector.append(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
+                                                  board.BOARD_SIZE, board.TEXT_SIZE, direction))
 
         ############################# Angle -1 to 1 #############################
         # upper left corner of the snake's head
         snakeHeadX, snakeHeadY = snakePositions[0]
         # reminder: MOVE_INCREMENT is the size of food or snake picture
         # get the exact middle point of the picture in context of the coordiante system
-        snakeHeadMidX = snakeHeadX + self.TO_ADD
-        snakeHeadMidY = snakeHeadY + self.TO_ADD
+        toAdd = board.MOVE_INCREMENT / 2
+        snakeHeadMidX = snakeHeadX + toAdd
+        snakeHeadMidY = snakeHeadY + toAdd
         foodX, foodY = foodPosition
-        foodXMid = foodX + self.TO_ADD
-        foodYMid = foodY + self.TO_ADD
-        inputVector.append(helper.calcDegree(snakeHeadMidX, snakeHeadMidY,
-                                             foodXMid, foodYMid, direction))
+        foodXMid = foodX + toAdd
+        foodYMid = foodY + toAdd
+        inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
+                                                foodXMid, foodYMid, direction))
 
         # Multiply the weight matrix with the input vector
         valuesHiddenLayer = np.dot(
@@ -65,10 +68,10 @@ class DNA():
             if valuesOutput[i] > biggestValue:
                 biggestValue = valuesOutput[i]
                 index = i
-        switch = {0 : "Left",
-                  1 : "Right",
-                  2 : "Forward"}
-        return helper.convertDirectionRelativeToSnake(direction, switch.get(index))
+        switch = {0: "Left",
+                  1: "Right",
+                  2: "Forward"}
+        return snakeUtil.convertDirectionRelativeToSnake(direction, switch.get(index))
         # return self.matrix.dot(inputVector)
 
     # Create matrix with values between -1 and 1(exclusive)
