@@ -13,16 +13,17 @@ import snakeUtil
 
 
 class DNA():
-    def __init__(self):
-        # self.BOARD_SIZE = boardSize
-        # self.MOVE_INCREMENT = moveIncrement
-        # self.TEXT_SIZE = textSize
-        # self.TO_ADD = moveIncrement / 2
-
+    def __init__(self, childMatrixOne=[], childMatrixTwo=[]):
         self.fitnessValue = 0
 
         # Create matrix (brain) for this particular snake
-        self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
+        if len(childMatrixOne) == 0:
+            # Random
+            self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
+        else:
+            # Creating child with genes from parents-
+            self.weightMatrixHiddenLayerOne = childMatrixOne
+            self.weightMatrixOutput = childMatrixTwo
 
     def fitness(self, score, steps):
         # print("score: ", score, "steps: ", steps)
