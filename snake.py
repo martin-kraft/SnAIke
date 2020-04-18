@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.font
 from dna import DNA
+from stats import Stats
 from terrarium import Terrarium
 from random import randint
 from PIL import Image, ImageTk
@@ -10,21 +11,25 @@ SCALE_FACTOR = 4
 
 class Snake(tk.Canvas):
     MOVE_INCREMENT = 20  # size of the food and snake "picture"
-    MOVES_PER_SECOND = 200
+    MOVES_PER_SECOND = 1000
     GAME_SPEED = 1000 // MOVES_PER_SECOND
     BOARD_SIZE = 20 * MOVE_INCREMENT
     TEXT_SIZE = 20
     BORDER_SIZE = 7
-    INITIAL_SNAKE_COUNT = 2000
+    INITIAL_SNAKE_COUNT = 100
     GENERATION = 0
+    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
 
-    def __init__(self):
+    def __init__(self, statsWindow):
         super().__init__(
             width=Snake.BOARD_SIZE,
             height=Snake.BOARD_SIZE + Snake.TEXT_SIZE,
             background="black",
             highlightthickness=0
         )
+        # Stats window
+        self.statsWindow = statsWindow
+
         # Initialise terrarium with specified number of snakes
         self.snakeCount = 0
         self.terrarium = Terrarium(Snake.INITIAL_SNAKE_COUNT)
@@ -36,19 +41,22 @@ class Snake(tk.Canvas):
         # Changes with key input; further information in on_key_press method
         self.notYetDirection = self.direction
 
-        # self.foodPosition = self.setNewFoodPosition()
+        # Stats
+        self.totalStepsGeneration = 0
+        self.totalScoreGeneration = 0
         self.foodPosition = (100, 400)
         self.score = 0
         self.highScore = 0
         self.stepCount = 0
 
+        # Max steps before the snake is killed; Increased if snake eats
+        self.stepsUntilDeath = Snake.ADDED_STEPS_AFTER_FOOD_IS_FOUND
+
         self.loadAssets()
         self.createObjects()
 
         self.pack()
-
         self.after(Snake.GAME_SPEED, self.performActions)
-
         self.bind_all("<Key>", self.onKeyPress)
 
     def endGame(self):
@@ -62,13 +70,18 @@ class Snake(tk.Canvas):
             self.snakeCount += 1
         else:
             # All snakes played the game
-            # Create children
+            # Create children / next generation
             self.terrarium.generateNextGeneration([40, 30, 20, 10])
+            roundedTotalScorePerSteps = "{:.5f}".format(
+                self.totalScoreGeneration / (self.totalStepsGeneration+1))
+            self.statsWindow.add(
+                f"Generation: {str(Snake.GENERATION+1).ljust(5)} H.Score: {str(self.highScore).ljust(5)} Food/Steps: {roundedTotalScorePerSteps}")
             Snake.GENERATION += 1
             self.snakeCount = 0
             self.highScore = 0
+            self.totalScoreGeneration = 0
+            self.totalStepsGeneration = 0
             Snake.INITIAL_SNAKE_COUNT = self.terrarium.getTotalSnakeCount()
-            # self.currentSnake = self.terrarium.getSnakeAt(0)
 
             # self.delete(tk.ALL)
             # self.create_text(
@@ -83,14 +96,17 @@ class Snake(tk.Canvas):
         # Select new snake
         self.currentSnake = self.terrarium.getSnakeAt(self.snakeCount)
 
-        # Reset playing field
+        # Prepare board for the next snake
         self.delete("snake")
         self.snakePositions = [(100, 100), (80, 100), (60, 100)]
         self.direction = "Right"
         self.notYetDirection = self.direction
         self.createSnake()
+        self.totalScoreGeneration += self.score
+        self.totalStepsGeneration += self.stepCount
         self.score = 0
         self.stepCount = 0
+        self.stepsUntilDeath = Snake.ADDED_STEPS_AFTER_FOOD_IS_FOUND
         # Update scores
         self.createScore()
 
@@ -126,6 +142,8 @@ class Snake(tk.Canvas):
 
             self.foodPosition = self.setNewFoodPosition()
             self.coords(self.find_withtag("food"), *self.foodPosition)
+
+            self.stepsUntilDeath += Snake.ADDED_STEPS_AFTER_FOOD_IS_FOUND
 
     def moveSnake(self, nextComputerMove=None):
         headX, headY = self.snakePositions[0]
@@ -176,7 +194,7 @@ class Snake(tk.Canvas):
 
     def performActions(self):
         shouldRun = True
-        if self.checkCollisions() or self.stepCount == 300:
+        if self.checkCollisions() or self.stepCount == self.stepsUntilDeath:
             shouldRun = self.endGame()
 
         nextDecision = self.currentSnake.decision(
@@ -206,14 +224,16 @@ class Snake(tk.Canvas):
 
     def createScore(self):
         score = self.find_withtag("score")
+        textToInsert = f"Score: {str(self.score).ljust(2)} H.score: {str(self.highScore).ljust(2)} S.Nr.: {str(self.snakeCount+1).ljust(3)}/{str(Snake.INITIAL_SNAKE_COUNT)} Gen.: {str(Snake.GENERATION+1).ljust(2)} S.count: {str(self.stepCount).ljust(3)}"
         if len(score) == 0:
             self.create_text(
                 # fff",
-                190, 12, text=f"Score: {self.score} H.score: {self.highScore} SnakeNr: {self.snakeCount+1}/{Snake.INITIAL_SNAKE_COUNT} Gen.: {Snake.GENERATION+1} S.count: {self.stepCount}", tag="score", fill="#fff"
+                190, 12, text=textToInsert, tag="score", fill="#fff"
             )
         else:
             self.itemconfigure(
-                score, text=f"Score: {self.score} H.score: {self.highScore} SnakeNr: {self.snakeCount+1}/{Snake.INITIAL_SNAKE_COUNT} Gen.: {Snake.GENERATION+1} S.count: {self.stepCount}", tag="score")
+                score,
+                text=textToInsert, tag="score")
 
     def createOutline(self):
         self.create_rectangle(Snake.BORDER_SIZE, Snake.TEXT_SIZE + Snake.BORDER_SIZE, Snake.BOARD_SIZE -
@@ -232,8 +252,10 @@ root = tk.Tk()
 root.title("SnAIke")
 root.resizable(False, False)
 root.tk.call("tk", "scaling", SCALE_FACTOR)
+root.configure(bg="black")
 
-board = Snake()
+stats = Stats(root, Snake.BOARD_SIZE - 30, 75)
+board = Snake(stats)
 
 root.lift()
 root.attributes("-topmost", True)

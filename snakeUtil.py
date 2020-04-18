@@ -1,8 +1,7 @@
 import math
-
+import numpy as np
 # Calculates the angle from the head to the food and
 # which is then represented from -1 to 1 (-1 left, 0 straight forward, 1 right)
-
 
 def calcDegree(snakeX, snakeY, foodX, foodY, direction):
     calc = math.atan2(snakeY - foodY, snakeX - foodX)
@@ -103,3 +102,6 @@ def convertDirectionRelativeToSnake(direction, newDirection):
     else:
         result = "Forward"
     return result
+
+def sigmmoid(x):
+    return 1/(1 + np.exp(-x))

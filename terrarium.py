@@ -1,13 +1,13 @@
 from dna import DNA
 from random import random
 import numpy as np
+
+
 # Contains list of snakes and functions to find parents for further generations
-
-
 class Terrarium():
     SNAKES = []
-    NEXTGEN_COUNT = 2000
     MUTATION_CHANCE = 0.05
+    NEXTGEN_COUNT = 2000
 
     def __init__(self, snakeCount):
         # Initialise snakes and put them into a list
@@ -32,18 +32,21 @@ class Terrarium():
                 formatedRanks.append(ranks[0])
             else:
                 # Format values into an range from 0.0 to 1.0
-                formatedRanks.append((formatedRanks[i-1] + ranks[i]) / 100)
+                formatedRanks.append((formatedRanks[i-1] + ranks[i]))
 
+        Terrarium.SNAKES = []
         while len(Terrarium.SNAKES) != Terrarium.NEXTGEN_COUNT:
             # Select two different parents
             parents = []
             while len(parents) < 2:
-                randomNumber = random()  # Number between 0.0 - 1.0
+                randomNumber = random() * 100  # Number between 0 - 100
                 for rank in formatedRanks:
-                    if randomNumber <= rank and formatedRanks.index(rank) not in parents:
+                    if randomNumber <= rank and sortedTerrarium[formatedRanks.index(rank)] not in parents:
                         parents.append(
                             sortedTerrarium[formatedRanks.index(rank)])
                         break
+            
+            print(parents)
 
             # Uniform crossover
             # For every Value in the matrix a value between 0 and 1.0 is generated.
@@ -64,14 +67,14 @@ class Terrarium():
                     if randomNumber < 0.5:
                         # Mutation
                         if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = randomNumber
+                            childMatrixOne[row][col] = random()
                         else:
                             # Take "genes" from mother.
                             childMatrixOne[row][col] = matrixOneMother[row][col]
                     else:
                         # Mutation
                         if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = randomNumber
+                            childMatrixOne[row][col] = random()
                         else:
                             # Take "genes" from father.
                             childMatrixOne[row][col] = matrixOneFather[row][col]
@@ -84,14 +87,14 @@ class Terrarium():
                     if randomNumber < 0.5:
                         # Mutation
                         if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = randomNumber
+                            childMatrixTwo[row][col] = random()
                         # Take "genes" from mother.
                         else:
                             childMatrixTwo[row][col] = matrixTwoMother[row][col]
                     else:
                         # Mutation
                         if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = randomNumber
+                            childMatrixTwo[row][col] = random()
                         else:
                             #  Take "genes" from father.
                             childMatrixTwo[row][col] = matrixTwoFather[row][col]

@@ -21,7 +21,7 @@ class DNA():
             # Random
             self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
         else:
-            # Creating child with genes from parents-
+            # Creating child with genes from parents
             self.weightMatrixHiddenLayerOne = childMatrixOne
             self.weightMatrixOutput = childMatrixTwo
 
@@ -57,9 +57,12 @@ class DNA():
                                                 foodXMid, foodYMid, direction))
 
         # Multiply the weight matrix with the input vector
-        valuesHiddenLayer = np.dot(
-            self.weightMatrixHiddenLayerOne, inputVector)
+        # print("input to hidden: \n", self.weightMatrixHiddenLayerOne)
+        # print("hidden to output: \n", self.weightMatrixOutput)
+        valuesHiddenLayer = (np.dot(
+            self.weightMatrixHiddenLayerOne, inputVector))
         valuesOutput = np.dot(self.weightMatrixOutput, valuesHiddenLayer)
+        # print("output: \n", valuesOutput)
 
         # Check which value is the biggest;
         # indexposition decides which action to take: 0 -> left; 1 -> right; 2 -> forward
@@ -73,7 +76,6 @@ class DNA():
                   1: "Right",
                   2: "Forward"}
         return snakeUtil.convertDirectionRelativeToSnake(direction, switch.get(index))
-        # return self.matrix.dot(inputVector)
 
     # Create matrix with values between -1 and 1(exclusive)
     # Every row represents the weight of the connection between all neurons of the first layer
