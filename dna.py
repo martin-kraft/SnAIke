@@ -25,6 +25,11 @@ class DNA():
             self.weightMatrixHiddenLayerOne = childMatrixOne
             self.weightMatrixOutput = childMatrixTwo
 
+        # Vectorize functions for later use
+        self.vectorizedSigmoid = np.vectorize(snakeUtil.sigmmoid)
+        self.vectorizedRectifier = np.vectorize(snakeUtil.rectified)
+        self.vectorizedTanH = np.vectorize(snakeUtil.tanH)
+
     def fitness(self, score, steps):
         self.fitnessValue = 2**score / steps
 
@@ -55,13 +60,18 @@ class DNA():
         inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
                                                 foodXMid, foodYMid, direction))
         # Multiply the weight matrix with the input vector
-        valuesHiddenLayer = np.dot(inputVector, self.weightMatrixHiddenLayerOne)
+        valuesHiddenLayer = np.dot(
+            inputVector, self.weightMatrixHiddenLayerOne)
+        # Apply sigmoid
+        self.vectorizedSigmoid(valuesHiddenLayer)
         valuesOutput = np.dot(valuesHiddenLayer, self.weightMatrixOutput)
+        # Apply sigmoid
+        self.vectorizedSigmoid(valuesOutput)
         print("input: \n", inputVector)
-        print("weight: \n", self.weightMatrixHiddenLayerOne)
-        print("weight x input: \n", valuesHiddenLayer)
-        print("weightMatrixOutput: \n", self.weightMatrixOutput)
-        print("VALUESOUTPUT: \n", valuesOutput)
+        # print("weight: \n", self.weightMatrixHiddenLayerOne)
+        # print("weight x input: \n", valuesHiddenLayer)
+        # print("weightMatrixOutput: \n", self.weightMatrixOutput)
+        # print("VALUESOUTPUT: \n", valuesOutput)
 
         # Check which value is the biggest;
         # indexposition decides which action to take: 0 -> left; 1 -> right; 2 -> forward
@@ -86,3 +96,8 @@ class DNA():
         hiddenOneToOutputWeights = (np.random.rand(neuronCountHiddenLayerOne,
                                                    outputNeurons) - 0.5) * 2
         return inputToHiddenOneWeights, hiddenOneToOutputWeights
+
+    # Taking a list of numbers which stand for the numbers of neurons for the specific layer.
+    # First and last layers are always input and output layers respectively.
+    def createNN(self, list):
+        pass

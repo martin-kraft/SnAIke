@@ -45,8 +45,6 @@ class Terrarium():
                         parents.append(
                             sortedTerrarium[formatedRanks.index(rank)])
                         break
-            
-            print(parents)
 
             # Uniform crossover
             # For every Value in the matrix a value between 0 and 1.0 is generated.

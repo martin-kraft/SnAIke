@@ -11,12 +11,12 @@ SCALE_FACTOR = 4
 
 class Snake(tk.Canvas):
     MOVE_INCREMENT = 20  # size of the food and snake "picture" in pixels
-    MOVES_PER_SECOND = 1000
+    MOVES_PER_SECOND = 3
     GAME_SPEED = 1000 // MOVES_PER_SECOND
     BOARD_SIZE = 20 * MOVE_INCREMENT
     TEXT_SIZE = 20
     BORDER_SIZE = 7
-    INITIAL_SNAKE_COUNT = 500
+    INITIAL_SNAKE_COUNT = 2000
     GENERATION = 0
     ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
 
@@ -72,10 +72,10 @@ class Snake(tk.Canvas):
             # All snakes played the game
             # Create children / next generation
             self.terrarium.generateNextGeneration([40, 30, 20, 10])
-            roundedTotalScorePerSteps = "{:.5f}".format(
-                self.totalScoreGeneration / (self.totalStepsGeneration+1))
+            roundedTotalScorePerSnake = "{:.2f}".format(
+                self.totalScoreGeneration / (self.terrarium.getTotalSnakeCount()))
             self.statsWindow.add(
-                f"Generation: {str(Snake.GENERATION+1).ljust(5)} H.Score: {str(self.highScore).ljust(5)} Food/Steps: {roundedTotalScorePerSteps}")
+                f"Generation: {str(Snake.GENERATION+1).ljust(5)} H.Score: {str(self.highScore).ljust(5)} Food/Snake: {roundedTotalScorePerSnake}")
             Snake.GENERATION += 1
             self.snakeCount = 0
             self.highScore = 0
@@ -199,7 +199,7 @@ class Snake(tk.Canvas):
 
         nextDecision = self.currentSnake.decision(
             self.snakePositions, self.foodPosition, self.direction, self)
-        self.moveSnake(nextDecision)
+        self.moveSnake()
         self.checkFoodCollision()
         self.createScore()
         if shouldRun:  # TODO: MAINLOOP STILL RUNS
