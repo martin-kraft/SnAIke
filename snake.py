@@ -10,13 +10,13 @@ SCALE_FACTOR = 4
 
 
 class Snake(tk.Canvas):
-    MOVE_INCREMENT = 20  # size of the food and snake "picture"
+    MOVE_INCREMENT = 20  # size of the food and snake "picture" in pixels
     MOVES_PER_SECOND = 1000
     GAME_SPEED = 1000 // MOVES_PER_SECOND
     BOARD_SIZE = 20 * MOVE_INCREMENT
     TEXT_SIZE = 20
     BORDER_SIZE = 7
-    INITIAL_SNAKE_COUNT = 100
+    INITIAL_SNAKE_COUNT = 500
     GENERATION = 0
     ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
 
@@ -202,7 +202,7 @@ class Snake(tk.Canvas):
         self.moveSnake(nextDecision)
         self.checkFoodCollision()
         self.createScore()
-        if shouldRun:  # TODO: MAINLOOP LÄUFT IMMER NOCH WEITER!
+        if shouldRun:  # TODO: MAINLOOP STILL RUNS
             self.after(Snake.GAME_SPEED, self.performActions)
 
     def loadAssets(self):

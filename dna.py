@@ -4,7 +4,7 @@ import snakeUtil
 # Creates the population of snakes with their own DNA.
 # DNA for each snake contains matrixes with float values between -1 to 1.
 
-# 4 input layers
+# 4 input neurons
 # 0 or 1 if body part or wall on the left side of snake's head
 #                                    right side
 #                                    front
@@ -26,7 +26,6 @@ class DNA():
             self.weightMatrixOutput = childMatrixTwo
 
     def fitness(self, score, steps):
-        # print("score: ", score, "steps: ", steps)
         self.fitnessValue = 2**score / steps
 
     # After each move, new calculations are made for new inputs
@@ -55,14 +54,14 @@ class DNA():
         foodYMid = foodY + toAdd
         inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
                                                 foodXMid, foodYMid, direction))
-
         # Multiply the weight matrix with the input vector
-        # print("input to hidden: \n", self.weightMatrixHiddenLayerOne)
-        # print("hidden to output: \n", self.weightMatrixOutput)
-        valuesHiddenLayer = (np.dot(
-            self.weightMatrixHiddenLayerOne, inputVector))
-        valuesOutput = np.dot(self.weightMatrixOutput, valuesHiddenLayer)
-        # print("output: \n", valuesOutput)
+        valuesHiddenLayer = np.dot(inputVector, self.weightMatrixHiddenLayerOne)
+        valuesOutput = np.dot(valuesHiddenLayer, self.weightMatrixOutput)
+        print("input: \n", inputVector)
+        print("weight: \n", self.weightMatrixHiddenLayerOne)
+        print("weight x input: \n", valuesHiddenLayer)
+        print("weightMatrixOutput: \n", self.weightMatrixOutput)
+        print("VALUESOUTPUT: \n", valuesOutput)
 
         # Check which value is the biggest;
         # indexposition decides which action to take: 0 -> left; 1 -> right; 2 -> forward
@@ -82,8 +81,8 @@ class DNA():
     # to a single neuron in the next.
     # NO BIAS
     def createWeightMatrix(self, neuronCountInputLayer=4, neuronCountHiddenLayerOne=6, outputNeurons=3):
-        inputToHiddenOneWeights = (np.random.rand(neuronCountHiddenLayerOne,
-                                                  neuronCountInputLayer) - 0.5) * 2
-        hiddenOneToOutputWeights = (np.random.rand(outputNeurons,
-                                                   neuronCountHiddenLayerOne) - 0.5) * 2
+        inputToHiddenOneWeights = (np.random.rand(neuronCountInputLayer,
+                                                  neuronCountHiddenLayerOne) - 0.5) * 2
+        hiddenOneToOutputWeights = (np.random.rand(neuronCountHiddenLayerOne,
+                                                   outputNeurons) - 0.5) * 2
         return inputToHiddenOneWeights, hiddenOneToOutputWeights
