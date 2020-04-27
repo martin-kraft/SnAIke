@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.font
+import os 
 from dna import DNA
 from stats import Stats
 from terrarium import Terrarium
@@ -7,16 +8,33 @@ from random import randint
 from PIL import Image, ImageTk
 
 SCALE_FACTOR = 4
+FILE_NAME = "Result.txt"
 
 
 class Snake(tk.Canvas):
-    MOVE_INCREMENT = 20  # size of the food and snake "picture" in pixels
-    MOVES_PER_SECOND = 3
+    # NN settings
+    ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
+    SELECTED_FUNCTIONS = ["TANH", "TANH"]
+    NN_STRUCTURE = [4, 36, 3] # Input and output inclusive
+    SNAKES_PER_GENERATION = 25
+    MUTATION_CHANCE = 0.05
+    AI_ACTIVE = True
+
+    # Debug if AI is deactivated
+    # Possible options: "INPUT", "OUTPUT", "NN"
+    PRINTOUT = [
+    # "INPUT"
+    # , "OUTPUT"
+    #, "NN"
+    ]
+
+    # Game settings
+    MOVES_PER_SECOND = 1000
     GAME_SPEED = 1000 // MOVES_PER_SECOND
+    MOVE_INCREMENT = 20  # size of the food and snake "picture" in pixels
     BOARD_SIZE = 20 * MOVE_INCREMENT
     TEXT_SIZE = 20
     BORDER_SIZE = 7
-    INITIAL_SNAKE_COUNT = 2000
     GENERATION = 0
     ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
 
@@ -32,7 +50,7 @@ class Snake(tk.Canvas):
 
         # Initialise terrarium with specified number of snakes
         self.snakeCount = 0
-        self.terrarium = Terrarium(Snake.INITIAL_SNAKE_COUNT)
+        self.terrarium = Terrarium(Snake.SNAKES_PER_GENERATION, Snake.MUTATION_CHANCE, Snake.NN_STRUCTURE, Snake.ACTIVATION_FUNCTIONS, Snake.SELECTED_FUNCTIONS)
         self.currentSnake = self.terrarium.getSnakeAt(self.snakeCount)
 
         # First position is always the head
@@ -66,7 +84,7 @@ class Snake(tk.Canvas):
             self.highScore = self.score
 
         # Check if snakes are available
-        if self.snakeCount + 1 < Snake.INITIAL_SNAKE_COUNT:
+        if self.snakeCount + 1 < Snake.SNAKES_PER_GENERATION:
             self.snakeCount += 1
         else:
             # All snakes played the game
@@ -199,7 +217,12 @@ class Snake(tk.Canvas):
 
         nextDecision = self.currentSnake.decision(
             self.snakePositions, self.foodPosition, self.direction, self)
-        self.moveSnake()
+        if not Snake.AI_ACTIVE: 
+            nextDecision = None
+            Snake.GAME_SPEED = 250
+            self.debug()
+
+        self.moveSnake(nextDecision)
         self.checkFoodCollision()
         self.createScore()
         if shouldRun:  # TODO: MAINLOOP STILL RUNS
@@ -224,7 +247,7 @@ class Snake(tk.Canvas):
 
     def createScore(self):
         score = self.find_withtag("score")
-        textToInsert = f"Score: {str(self.score).ljust(2)} H.score: {str(self.highScore).ljust(2)} S.Nr.: {str(self.snakeCount+1).ljust(3)}/{str(Snake.INITIAL_SNAKE_COUNT)} Gen.: {str(Snake.GENERATION+1).ljust(2)} S.count: {str(self.stepCount).ljust(3)}"
+        textToInsert = f"Score: {str(self.score).ljust(2)} H.score: {str(self.highScore).ljust(2)} S.Nr.: {str(self.snakeCount+1).ljust(3)}/{str(Snake.SNAKES_PER_GENERATION)} Gen.: {str(Snake.GENERATION+1).ljust(2)}"
         if len(score) == 0:
             self.create_text(
                 # fff",
@@ -247,6 +270,23 @@ class Snake(tk.Canvas):
     def createFood(self):
         self.create_image(*self.foodPosition, image=self.food, tag="food")
 
+    def debug(self):
+        if "INPUT" in Snake.PRINTOUT: print("input vector: ", self.currentSnake.inputVector)
+        if "OUTPUT" in Snake.PRINTOUT: print("output vector: ", self.currentSnake.outputVector)
+        if "NN" in Snake.PRINTOUT: print("NN: ", self.currentSnake.neuralNetwork)
+
+    def printToFile(self):
+        if os.path.exists(FILE_NAME):
+            append_write = "a" # append if already exists
+        else:
+            append_write = "w" # make a new file if not
+
+        f = open(FILE_NAME, append_write)
+        # Write setup
+        f.write(f"Setup\n: NN Structure: {Snake.NN_STRUCTURE}, Selected A.Functions: {Snake.SELECTED_FUNCTIONS}, Snakes per Generation: {Snake.SNAKES_PER_GENERATION}, Mutation chance: {Snake.MUTATION_CHANCE}")
+        # Write results
+        f.write(self.statsWindow.)
+        f.close()
 
 root = tk.Tk()
 root.title("SnAIke")
@@ -260,3 +300,6 @@ board = Snake(stats)
 root.lift()
 root.attributes("-topmost", True)
 root.mainloop()
+
+print("Das Fenster wurde geschlossen!")
+board.printToFile()

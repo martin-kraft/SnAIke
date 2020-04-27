@@ -1,18 +1,17 @@
 from dna import DNA
-from random import random
+import random
 import numpy as np
 
 
 # Contains list of snakes and functions to find parents for further generations
 class Terrarium():
     SNAKES = []
-    MUTATION_CHANCE = 0.05
-    NEXTGEN_COUNT = 2000
-
-    def __init__(self, snakeCount):
+    def __init__(self, snakeCount, mutationChance, nnStructure, availableActivationFunctions, selectedFunctions):
+        self.generationCount = snakeCount
+        self.mutationChance = mutationChance
         # Initialise snakes and put them into a list
-        for _ in range(snakeCount):
-            Terrarium.SNAKES.append(DNA())
+        for _ in range(self.generationCount):
+            Terrarium.SNAKES.append(DNA(nnStructure, availableActivationFunctions, selectedFunctions))
 
     def getSnakeAt(self, index):
         return Terrarium.SNAKES[index]
@@ -35,70 +34,51 @@ class Terrarium():
                 formatedRanks.append((formatedRanks[i-1] + ranks[i]))
 
         Terrarium.SNAKES = []
-        while len(Terrarium.SNAKES) != Terrarium.NEXTGEN_COUNT:
-            # Select two different parents
+        # Select two different parents are "create" a child
+        while len(Terrarium.SNAKES) != self.generationCount:
             parents = []
             while len(parents) < 2:
-                randomNumber = random() * 100  # Number between 0 - 100
+                randomNumber = random.random() * 100  # Number between 0 - 100
                 for rank in formatedRanks:
                     if randomNumber <= rank and sortedTerrarium[formatedRanks.index(rank)] not in parents:
                         parents.append(
                             sortedTerrarium[formatedRanks.index(rank)])
                         break
 
+            motherDNA = parents[0]
+            fatherDNA = parents[1]
             # Uniform crossover
-            # For every Value in the matrix a value between 0 and 1.0 is generated.
-            # If the generated value is under 0.5, the matrix value from the mother
-            # (parents index 0) is taken, otherwise from the father (parents index 1).
-            mother = parents[0]
-            father = parents[1]
-            matrixOneMother = mother.weightMatrixHiddenLayerOne
-            matrixTwoMother = mother.weightMatrixOutput
-            matrixOneFather = father.weightMatrixHiddenLayerOne
-            matrixTwoFather = father.weightMatrixOutput
-
-            # Create the first matrix for the child
-            childMatrixOne = np.copy(matrixOneMother)
-            for row in range(len(matrixOneMother)):
-                for col in range(len(matrixOneMother[0])):
-                    randomNumber = random()  # Number between 0.0 - 1.0
-                    if randomNumber < 0.5:
-                        # Mutation
-                        if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = random()
-                        else:
-                            # Take "genes" from mother.
-                            childMatrixOne[row][col] = matrixOneMother[row][col]
-                    else:
-                        # Mutation
-                        if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixOne[row][col] = random()
-                        else:
-                            # Take "genes" from father.
-                            childMatrixOne[row][col] = matrixOneFather[row][col]
-
-            # Create the second matrix for the child
-            childMatrixTwo = np.copy(matrixTwoMother)
-            for row in range(len(matrixTwoMother)):
-                for col in range(len(matrixTwoMother[0])):
-                    randomNumber = random()  # Number between 0.0 - 1.0
-                    if randomNumber < 0.5:
-                        # Mutation
-                        if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixTwo[row][col] = random()
-                        # Take "genes" from mother.
-                        else:
-                            childMatrixTwo[row][col] = matrixTwoMother[row][col]
-                    else:
-                        # Mutation
-                        if randomNumber < Terrarium.MUTATION_CHANCE:
-                            childMatrixTwo[row][col] = random()
-                        else:
-                            #  Take "genes" from father.
-                            childMatrixTwo[row][col] = matrixTwoFather[row][col]
+            childDNA = self.uniformCrossover(motherDNA, fatherDNA)
 
             # Create child with both matrixes
-            Terrarium.SNAKES.append(DNA(childMatrixOne, childMatrixTwo))
+            Terrarium.SNAKES.append(DNA(motherDNA.neuralNetworkStructure, motherDNA.availableActivationFunctions, motherDNA.selectedFunctions, childDNA))
 
     def getTotalSnakeCount(self):
         return len(Terrarium.SNAKES)
+
+    # For every Value in the matrix a value between 0 and 1.0 is generated.
+    # If the generated value is under 0.5, the matrix value from the mother
+    # (parents index 0) is taken, otherwise from the father (parents index 1).
+    def uniformCrossover(self, motherDNA, fatherDNA):
+        # Neural network contains all weights between input and output
+        childDNA = []
+        for matrixIndice in range(len(motherDNA.neuralNetwork)):
+            childMatrix = np.copy(motherDNA.neuralNetwork[matrixIndice])
+            for row in range(len(motherDNA.neuralNetwork[matrixIndice])):
+                mutationOccured = False  # Allowing one mutation per row
+                for col in range(len(motherDNA.neuralNetwork[matrixIndice][0])):
+                    randomNumber = random.random()  # Number between 0.0 - 1.0
+                    mutationChance = random.random()
+                    # Mutation
+                    if mutationChance < self.mutationChance and not mutationOccured:
+                            mutationOccured = True
+                            childMatrix[row][col] = random.uniform(-1.0, 1.0)
+                            continue
+                    if randomNumber < 0.5:
+                        # Take "genes" from mother.
+                        pass
+                    else:
+                        # Take "genes" from father.
+                        childMatrix[row][col] = fatherDNA.neuralNetwork[matrixIndice][row][col]
+            childDNA.append(childMatrix)
+        return childDNA

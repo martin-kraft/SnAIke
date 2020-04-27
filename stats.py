@@ -30,4 +30,4 @@ class Stats(tk.Frame):
     def add(self, stringToAdd):
         tk.Label(self.scrollable_frame, text=stringToAdd,  # font=("Helvetica", 3),
                  fg="white", bg="black").pack(side="bottom")
-        # self.canvas.yview_moveto(0) # Scrolls to the top 
+        # self.canvas.yview_moveto(0) # Scrolls to the top

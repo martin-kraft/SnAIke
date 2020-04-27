@@ -13,22 +13,22 @@ import snakeUtil
 
 
 class DNA():
-    def __init__(self, childMatrixOne=[], childMatrixTwo=[]):
+    def __init__(self, nnStructure, availableActivationFunctions, selectedFunctions, matrices=[]):
         self.fitnessValue = 0
-
+        self.neuralNetworkStructure = nnStructure
+        self.availableActivationFunctions = availableActivationFunctions
+        self.selectedFunctions = selectedFunctions
         # Create matrix (brain) for this particular snake
-        if len(childMatrixOne) == 0:
+        if len(matrices) == 0:
             # Random
-            self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
+            # self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
+            self.neuralNetwork = self.createNeuralNetwork()
         else:
             # Creating child with genes from parents
-            self.weightMatrixHiddenLayerOne = childMatrixOne
-            self.weightMatrixOutput = childMatrixTwo
+            self.neuralNetwork = matrices
 
         # Vectorize functions for later use
-        self.vectorizedSigmoid = np.vectorize(snakeUtil.sigmmoid)
-        self.vectorizedRectifier = np.vectorize(snakeUtil.rectified)
-        self.vectorizedTanH = np.vectorize(snakeUtil.tanH)
+        self.preparedActivationFunctionList = self.prepareActivationFunctions()
 
     def fitness(self, score, steps):
         self.fitnessValue = 2**score / steps
@@ -36,14 +36,14 @@ class DNA():
     # After each move, new calculations are made for new inputs
     def decision(self, snakePositions, foodPosition, direction, board):
         # check left, right and in front of snake
-        inputVector = []
+        self.inputVector = []
 
         ############################# Collision #############################
-        inputVector.append(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.append(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
                                                board.BOARD_SIZE, board.TEXT_SIZE, direction))
-        inputVector.append(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.append(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
                                                 board.BOARD_SIZE, board.TEXT_SIZE, direction))
-        inputVector.append(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.append(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
                                                   board.BOARD_SIZE, board.TEXT_SIZE, direction))
 
         ############################# Angle -1 to 1 #############################
@@ -57,29 +57,18 @@ class DNA():
         foodX, foodY = foodPosition
         foodXMid = foodX + toAdd
         foodYMid = foodY + toAdd
-        inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
+        self.inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
                                                 foodXMid, foodYMid, direction))
-        # Multiply the weight matrix with the input vector
-        valuesHiddenLayer = np.dot(
-            inputVector, self.weightMatrixHiddenLayerOne)
-        # Apply sigmoid
-        self.vectorizedSigmoid(valuesHiddenLayer)
-        valuesOutput = np.dot(valuesHiddenLayer, self.weightMatrixOutput)
-        # Apply sigmoid
-        self.vectorizedSigmoid(valuesOutput)
-        print("input: \n", inputVector)
-        # print("weight: \n", self.weightMatrixHiddenLayerOne)
-        # print("weight x input: \n", valuesHiddenLayer)
-        # print("weightMatrixOutput: \n", self.weightMatrixOutput)
-        # print("VALUESOUTPUT: \n", valuesOutput)
+        # Propagate
+        self.outputVector = self.propagate(self.inputVector)
 
         # Check which value is the biggest;
         # indexposition decides which action to take: 0 -> left; 1 -> right; 2 -> forward
         biggestValue = 0
         index = 0
-        for i in range(valuesOutput.size):
-            if valuesOutput[i] > biggestValue:
-                biggestValue = valuesOutput[i]
+        for i in range(len(self.outputVector)):
+            if self.outputVector[i] > biggestValue:
+                biggestValue = self.outputVector[i]
                 index = i
         switch = {0: "Left",
                   1: "Right",
@@ -91,13 +80,41 @@ class DNA():
     # to a single neuron in the next.
     # NO BIAS
     def createWeightMatrix(self, neuronCountInputLayer=4, neuronCountHiddenLayerOne=6, outputNeurons=3):
-        inputToHiddenOneWeights = (np.random.rand(neuronCountInputLayer,
-                                                  neuronCountHiddenLayerOne) - 0.5) * 2
-        hiddenOneToOutputWeights = (np.random.rand(neuronCountHiddenLayerOne,
-                                                   outputNeurons) - 0.5) * 2
+        inputToHiddenOneWeights = (np.random.rand(
+            neuronCountInputLayer, neuronCountHiddenLayerOne) - 0.5) * 2
+        hiddenOneToOutputWeights = (np.random.rand(
+            neuronCountHiddenLayerOne, outputNeurons) - 0.5) * 2
         return inputToHiddenOneWeights, hiddenOneToOutputWeights
 
     # Taking a list of numbers which stand for the numbers of neurons for the specific layer.
     # First and last layers are always input and output layers respectively.
-    def createNN(self, list):
-        pass
+    # Returns list with numpy matrices.
+    def createNeuralNetwork(self):
+        matrices = []
+        for i in range(1, len(self.neuralNetworkStructure)):
+            matrices.append((np.random.rand(
+                self.neuralNetworkStructure[i-1], self.neuralNetworkStructure[i]) - 0.5) * 2)
+        return matrices
+
+    def propagate(self, inputVector):
+        result = []
+        result.append(self.preparedActivationFunctionList[0](
+            np.dot(inputVector, self.neuralNetwork[0])))
+
+        for i in range(1, len(self.neuralNetwork)):
+            result.append(self.preparedActivationFunctionList[i](
+                np.dot(result[-1], self.neuralNetwork[i])))
+
+        return result[-1]  # Output
+
+    def prepareActivationFunctions(self):
+        listWithFunctions = []
+        # ["SIGMOID", "TANH", "RECTIFIER"]
+        switch = {
+            "SIGMOID": np.vectorize(snakeUtil.sigmmoid), 
+            "TANH": np.vectorize(snakeUtil.tanH), 
+            "RECTIFIER": np.vectorize(snakeUtil.rectified)
+            }
+        for func in self.selectedFunctions:
+            listWithFunctions.append(switch.get(func))
+        return listWithFunctions
