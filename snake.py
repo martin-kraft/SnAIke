@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.font
-import os 
+import os
+import datetime
 from dna import DNA
 from stats import Stats
 from terrarium import Terrarium
@@ -15,7 +16,7 @@ class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
     SELECTED_FUNCTIONS = ["TANH", "TANH"]
-    NN_STRUCTURE = [4, 36, 3] # Input and output inclusive
+    NN_STRUCTURE = [4, 36, 3]  # Input and output inclusive
     SNAKES_PER_GENERATION = 25
     MUTATION_CHANCE = 0.05
     AI_ACTIVE = True
@@ -23,9 +24,9 @@ class Snake(tk.Canvas):
     # Debug if AI is deactivated
     # Possible options: "INPUT", "OUTPUT", "NN"
     PRINTOUT = [
-    # "INPUT"
-    # , "OUTPUT"
-    #, "NN"
+        # "INPUT"
+        # , "OUTPUT"
+        # , "NN"
     ]
 
     # Game settings
@@ -45,12 +46,17 @@ class Snake(tk.Canvas):
             background="black",
             highlightthickness=0
         )
+        date = datetime.datetime.now()
+        setupText = f"{date}\nSetup:\nNN Structure: {Snake.NN_STRUCTURE}, Selected A.Functions: {Snake.SELECTED_FUNCTIONS}, Snakes per Generation: {Snake.SNAKES_PER_GENERATION}, Mutation chance: {Snake.MUTATION_CHANCE}\n"
+        self.printToFile(setupText)
+
         # Stats window
         self.statsWindow = statsWindow
 
         # Initialise terrarium with specified number of snakes
         self.snakeCount = 0
-        self.terrarium = Terrarium(Snake.SNAKES_PER_GENERATION, Snake.MUTATION_CHANCE, Snake.NN_STRUCTURE, Snake.ACTIVATION_FUNCTIONS, Snake.SELECTED_FUNCTIONS)
+        self.terrarium = Terrarium(Snake.SNAKES_PER_GENERATION, Snake.MUTATION_CHANCE,
+                                   Snake.NN_STRUCTURE, Snake.ACTIVATION_FUNCTIONS, Snake.SELECTED_FUNCTIONS)
         self.currentSnake = self.terrarium.getSnakeAt(self.snakeCount)
 
         # First position is always the head
@@ -92,8 +98,10 @@ class Snake(tk.Canvas):
             self.terrarium.generateNextGeneration([40, 30, 20, 10])
             roundedTotalScorePerSnake = "{:.2f}".format(
                 self.totalScoreGeneration / (self.terrarium.getTotalSnakeCount()))
-            self.statsWindow.add(
-                f"Generation: {str(Snake.GENERATION+1).ljust(5)} H.Score: {str(self.highScore).ljust(5)} Food/Snake: {roundedTotalScorePerSnake}")
+
+            textToInsert = f"Generation: {str(Snake.GENERATION+1).ljust(5)} H.Score: {str(self.highScore).ljust(5)} Food/Snake: {roundedTotalScorePerSnake}"
+            self.statsWindow.add(textToInsert)
+            self.printToFile(textToInsert + "\n")
             Snake.GENERATION += 1
             self.snakeCount = 0
             self.highScore = 0
@@ -217,7 +225,7 @@ class Snake(tk.Canvas):
 
         nextDecision = self.currentSnake.decision(
             self.snakePositions, self.foodPosition, self.direction, self)
-        if not Snake.AI_ACTIVE: 
+        if not Snake.AI_ACTIVE:
             nextDecision = None
             Snake.GAME_SPEED = 250
             self.debug()
@@ -271,22 +279,25 @@ class Snake(tk.Canvas):
         self.create_image(*self.foodPosition, image=self.food, tag="food")
 
     def debug(self):
-        if "INPUT" in Snake.PRINTOUT: print("input vector: ", self.currentSnake.inputVector)
-        if "OUTPUT" in Snake.PRINTOUT: print("output vector: ", self.currentSnake.outputVector)
-        if "NN" in Snake.PRINTOUT: print("NN: ", self.currentSnake.neuralNetwork)
+        if "INPUT" in Snake.PRINTOUT:
+            print("input vector: ", self.currentSnake.inputVector)
+        if "OUTPUT" in Snake.PRINTOUT:
+            print("output vector: ", self.currentSnake.outputVector)
+        if "NN" in Snake.PRINTOUT:
+            print("NN: ", self.currentSnake.neuralNetwork)
 
-    def printToFile(self):
+    # Printing into a text file at the start and after each generation.
+    def printToFile(self, toWrite):
         if os.path.exists(FILE_NAME):
-            append_write = "a" # append if already exists
+            append_write = "a"  # append if already exists
         else:
-            append_write = "w" # make a new file if not
+            append_write = "w"  # make a new file if not
 
         f = open(FILE_NAME, append_write)
-        # Write setup
-        f.write(f"Setup\n: NN Structure: {Snake.NN_STRUCTURE}, Selected A.Functions: {Snake.SELECTED_FUNCTIONS}, Snakes per Generation: {Snake.SNAKES_PER_GENERATION}, Mutation chance: {Snake.MUTATION_CHANCE}")
-        # Write results
-        f.write(self.statsWindow.)
+        # TODO: Datum einfügen
+        f.write(toWrite)
         f.close()
+
 
 root = tk.Tk()
 root.title("SnAIke")
@@ -300,6 +311,3 @@ board = Snake(stats)
 root.lift()
 root.attributes("-topmost", True)
 root.mainloop()
-
-print("Das Fenster wurde geschlossen!")
-board.printToFile()
