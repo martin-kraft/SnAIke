@@ -15,9 +15,9 @@ FILE_NAME = "Result.txt"
 class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
-    SELECTED_FUNCTIONS = ["TANH", "TANH"]
-    NN_STRUCTURE = [4, 36, 3]  # Input and output inclusive
-    SNAKES_PER_GENERATION = 25
+    SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
+    NN_STRUCTURE = [4, 87, 56, 3]  # Input and output inclusive
+    SNAKES_PER_GENERATION = 500
     MUTATION_CHANCE = 0.05
     AI_ACTIVE = True
 
@@ -26,7 +26,7 @@ class Snake(tk.Canvas):
     PRINTOUT = [
         # "INPUT"
         # , "OUTPUT"
-        # , "NN"
+        # "NN"
     ]
 
     # Game settings
@@ -95,7 +95,8 @@ class Snake(tk.Canvas):
         else:
             # All snakes played the game
             # Create children / next generation
-            self.terrarium.generateNextGeneration([40, 30, 20, 10])
+            # self.terrarium.generateNextGeneration([40, 30, 20, 10])
+            self.terrarium.generateNextGeneration([30, 20, 15, 13, 10, 8, 4])
             roundedTotalScorePerSnake = "{:.2f}".format(
                 self.totalScoreGeneration / (self.terrarium.getTotalSnakeCount()))
 
@@ -294,7 +295,6 @@ class Snake(tk.Canvas):
             append_write = "w"  # make a new file if not
 
         f = open(FILE_NAME, append_write)
-        # TODO: Datum einfügen
         f.write(toWrite)
         f.close()
 
@@ -311,3 +311,5 @@ board = Snake(stats)
 root.lift()
 root.attributes("-topmost", True)
 root.mainloop()
+# Print newline to file for better readability
+board.printToFile("\n")

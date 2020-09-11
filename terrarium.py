@@ -6,12 +6,14 @@ import numpy as np
 # Contains list of snakes and functions to find parents for further generations
 class Terrarium():
     SNAKES = []
+
     def __init__(self, snakeCount, mutationChance, nnStructure, availableActivationFunctions, selectedFunctions):
         self.generationCount = snakeCount
         self.mutationChance = mutationChance
         # Initialise snakes and put them into a list
         for _ in range(self.generationCount):
-            Terrarium.SNAKES.append(DNA(nnStructure, availableActivationFunctions, selectedFunctions))
+            Terrarium.SNAKES.append(
+                DNA(nnStructure, availableActivationFunctions, selectedFunctions))
 
     def getSnakeAt(self, index):
         return Terrarium.SNAKES[index]
@@ -34,11 +36,12 @@ class Terrarium():
                 formatedRanks.append((formatedRanks[i-1] + ranks[i]))
 
         Terrarium.SNAKES = []
-        # Select two different parents are "create" a child
+
+        # Select two different parents to "create" a child
         while len(Terrarium.SNAKES) != self.generationCount:
             parents = []
             while len(parents) < 2:
-                randomNumber = random.random() * 100  # Number between 0 - 100
+                randomNumber = random.random() * 100  # Number between 0 - 99
                 for rank in formatedRanks:
                     if randomNumber <= rank and sortedTerrarium[formatedRanks.index(rank)] not in parents:
                         parents.append(
@@ -51,7 +54,8 @@ class Terrarium():
             childDNA = self.uniformCrossover(motherDNA, fatherDNA)
 
             # Create child with both matrixes
-            Terrarium.SNAKES.append(DNA(motherDNA.neuralNetworkStructure, motherDNA.availableActivationFunctions, motherDNA.selectedFunctions, childDNA))
+            Terrarium.SNAKES.append(DNA(motherDNA.neuralNetworkStructure,
+                                        motherDNA.availableActivationFunctions, motherDNA.selectedFunctions, childDNA))
 
     def getTotalSnakeCount(self):
         return len(Terrarium.SNAKES)
@@ -65,15 +69,15 @@ class Terrarium():
         for matrixIndice in range(len(motherDNA.neuralNetwork)):
             childMatrix = np.copy(motherDNA.neuralNetwork[matrixIndice])
             for row in range(len(motherDNA.neuralNetwork[matrixIndice])):
-                mutationOccured = False  # Allowing one mutation per row
+                mutationOccured = False  # Allowing mutation per weight
                 for col in range(len(motherDNA.neuralNetwork[matrixIndice][0])):
                     randomNumber = random.random()  # Number between 0.0 - 1.0
                     mutationChance = random.random()
                     # Mutation
                     if mutationChance < self.mutationChance and not mutationOccured:
-                            mutationOccured = True
-                            childMatrix[row][col] = random.uniform(-1.0, 1.0)
-                            continue
+                        mutationOccured = True
+                        childMatrix[row][col] = random.uniform(-1.0, 1.0)
+                        continue
                     if randomNumber < 0.5:
                         # Take "genes" from mother.
                         pass

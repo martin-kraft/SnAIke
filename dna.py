@@ -31,20 +31,24 @@ class DNA():
         self.preparedActivationFunctionList = self.prepareActivationFunctions()
 
     def fitness(self, score, steps):
-        self.fitnessValue = 2**score / steps
+        # self.fitnessValue = 2**score / steps
+        self.fitnessValue = steps + \
+            (2**score + score**2.1 * 500) - \
+            abs(score**1.2 * (0.25 * steps)**1.3)
 
     # After each move, new calculations are made for new inputs
+
     def decision(self, snakePositions, foodPosition, direction, board):
         # check left, right and in front of snake
         self.inputVector = []
 
         ############################# Collision #############################
         self.inputVector.append(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
-                                               board.BOARD_SIZE, board.TEXT_SIZE, direction))
+                                                    board.BOARD_SIZE, board.TEXT_SIZE, direction))
         self.inputVector.append(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
-                                                board.BOARD_SIZE, board.TEXT_SIZE, direction))
+                                                     board.BOARD_SIZE, board.TEXT_SIZE, direction))
         self.inputVector.append(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
-                                                  board.BOARD_SIZE, board.TEXT_SIZE, direction))
+                                                       board.BOARD_SIZE, board.TEXT_SIZE, direction))
 
         ############################# Angle -1 to 1 #############################
         # upper left corner of the snake's head
@@ -58,7 +62,7 @@ class DNA():
         foodXMid = foodX + toAdd
         foodYMid = foodY + toAdd
         self.inputVector.append(snakeUtil.calcDegree(snakeHeadMidX, snakeHeadMidY,
-                                                foodXMid, foodYMid, direction))
+                                                     foodXMid, foodYMid, direction))
         # Propagate
         self.outputVector = self.propagate(self.inputVector)
 
@@ -111,10 +115,10 @@ class DNA():
         listWithFunctions = []
         # ["SIGMOID", "TANH", "RECTIFIER"]
         switch = {
-            "SIGMOID": np.vectorize(snakeUtil.sigmmoid), 
-            "TANH": np.vectorize(snakeUtil.tanH), 
+            "SIGMOID": np.vectorize(snakeUtil.sigmmoid),
+            "TANH": np.vectorize(snakeUtil.tanH),
             "RECTIFIER": np.vectorize(snakeUtil.rectified)
-            }
+        }
         for func in self.selectedFunctions:
             listWithFunctions.append(switch.get(func))
         return listWithFunctions
