@@ -16,8 +16,9 @@ class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
     SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
-    NN_STRUCTURE = [4, 87, 56, 3]  # Input and output inclusive
-    SNAKES_PER_GENERATION = 500
+    NN_STRUCTURE = [4, 5, 3, 3]  # Input and output inclusive
+    RANK_SECTORS = [30, 20, 15, 13, 10, 8, 4]
+    SNAKES_PER_GENERATION = 100
     MUTATION_CHANCE = 0.05
     AI_ACTIVE = True
 
@@ -96,7 +97,7 @@ class Snake(tk.Canvas):
             # All snakes played the game
             # Create children / next generation
             # self.terrarium.generateNextGeneration([40, 30, 20, 10])
-            self.terrarium.generateNextGeneration([30, 20, 15, 13, 10, 8, 4])
+            self.terrarium.generateNextGeneration(self.RANK_SECTORS)
             roundedTotalScorePerSnake = "{:.2f}".format(
                 self.totalScoreGeneration / (self.terrarium.getTotalSnakeCount()))
 

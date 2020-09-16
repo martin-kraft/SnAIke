@@ -25,14 +25,14 @@ class Terrarium():
         sortedTerrarium = sorted(
             Terrarium.SNAKES, key=lambda snake: snake.fitnessValue, reverse=True)
 
-        # Reformat the ranks so the chances are represented in sectors e.g. rank 1: 0-0.4; rank 2: 0.4-0.7; rank 3: 0.7-0.9; rank 4: 0.9-1.0
+        # Reformat the ranks so the chances are represented in sectors e.g. rank 1: 0 to 40; rank 2: 40 to 70; rank 3: 7 to 90; rank 4: 90 to 100
         # The input list is descending sorted and the output list is ascending sorted.
         formatedRanks = []
         for i in range(len(ranks)):
             if len(formatedRanks) == 0:
                 formatedRanks.append(ranks[0])
             else:
-                # Format values into an range from 0.0 to 1.0
+                # Format values into an range from 0 to 99
                 formatedRanks.append((formatedRanks[i-1] + ranks[i]))
 
         Terrarium.SNAKES = []
@@ -41,9 +41,9 @@ class Terrarium():
         while len(Terrarium.SNAKES) != self.generationCount:
             parents = []
             while len(parents) < 2:
-                randomNumber = random.random() * 100  # Number between 0 - 99
+                randomNumber = random.randrange(100)  # Number between 0 - 99
                 for rank in formatedRanks:
-                    if randomNumber <= rank and sortedTerrarium[formatedRanks.index(rank)] not in parents:
+                    if randomNumber < rank and sortedTerrarium[formatedRanks.index(rank)] not in parents:
                         parents.append(
                             sortedTerrarium[formatedRanks.index(rank)])
                         break
@@ -71,18 +71,18 @@ class Terrarium():
             for row in range(len(motherDNA.neuralNetwork[matrixIndice])):
                 mutationOccured = False  # Allowing mutation per weight
                 for col in range(len(motherDNA.neuralNetwork[matrixIndice][0])):
-                    randomNumber = random.random()  # Number between 0.0 - 1.0
-                    mutationChance = random.random()
-                    # Mutation
-                    if mutationChance < self.mutationChance and not mutationOccured:
-                        mutationOccured = True
-                        childMatrix[row][col] = random.uniform(-1.0, 1.0)
-                        continue
+                    randomNumber = random.random()  # [0.0, 1.0)
                     if randomNumber < 0.5:
                         # Take "genes" from mother.
                         pass
                     else:
                         # Take "genes" from father.
                         childMatrix[row][col] = fatherDNA.neuralNetwork[matrixIndice][row][col]
+                    # Mutation
+                    mutationChance = random.random()
+                    if mutationChance < self.mutationChance and not mutationOccured:
+                        mutationOccured = True
+                        childMatrix[row][col] = random.uniform(-1.0, 1.0)
+                        continue
             childDNA.append(childMatrix)
         return childDNA
