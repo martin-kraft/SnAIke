@@ -18,7 +18,7 @@ class Snake(tk.Canvas):
     SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
     NN_STRUCTURE = [4, 5, 3, 3]  # Input and output inclusive
     RANK_SECTORS = [30, 20, 15, 13, 10, 8, 4]
-    SNAKES_PER_GENERATION = 100
+    SNAKES_PER_GENERATION = 500
     MUTATION_CHANCE = 0.05
     AI_ACTIVE = True
 

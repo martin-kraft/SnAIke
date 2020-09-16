@@ -79,35 +79,26 @@ class DNA():
                   2: "Forward"}
         return snakeUtil.convertDirectionRelativeToSnake(direction, switch.get(index))
 
-    # Create matrix with values between -1 and 1(exclusive)
-    # Every row represents the weight of the connection between all neurons of the first layer
-    # to a single neuron in the next.
-    # NO BIAS
-    def createWeightMatrix(self, neuronCountInputLayer=4, neuronCountHiddenLayerOne=6, outputNeurons=3):
-        inputToHiddenOneWeights = (np.random.rand(
-            neuronCountInputLayer, neuronCountHiddenLayerOne) - 0.5) * 2
-        hiddenOneToOutputWeights = (np.random.rand(
-            neuronCountHiddenLayerOne, outputNeurons) - 0.5) * 2
-        return inputToHiddenOneWeights, hiddenOneToOutputWeights
-
     # Taking a list of numbers which stand for the numbers of neurons for the specific layer.
     # First and last layers are always input and output layers respectively.
+    # Every row represents the weight of the connection between all neurons of the first layer
+    # to a single neuron in the next.
     # Returns list with numpy matrices.
     def createNeuralNetwork(self):
         matrices = []
         for i in range(1, len(self.neuralNetworkStructure)):
             matrices.append((np.random.rand(
-                self.neuralNetworkStructure[i-1], self.neuralNetworkStructure[i]) - 0.5) * 2)
+                self.neuralNetworkStructure[i], self.neuralNetworkStructure[i-1]) - 0.5) * 2)
         return matrices
 
     def propagate(self, inputVector):
         result = []
         result.append(self.preparedActivationFunctionList[0](
-            np.dot(inputVector, self.neuralNetwork[0])))
+            np.dot(self.neuralNetwork[0], inputVector)))
 
         for i in range(1, len(self.neuralNetwork)):
             result.append(self.preparedActivationFunctionList[i](
-                np.dot(result[-1], self.neuralNetwork[i])))
+                np.dot(self.neuralNetwork[i], result[-1])))
 
         return result[-1]  # Output
 
