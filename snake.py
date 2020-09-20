@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.font
 import os
+import sys
 import datetime
 from dna import DNA
 from stats import Stats
@@ -16,10 +17,10 @@ class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
     SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
-    NN_STRUCTURE = [4, 5, 3, 3]  # Input and output inclusive
+    NN_STRUCTURE = [4, 16, 4, 3]  # Input and output inclusive
     RANK_SECTORS = [30, 20, 15, 13, 10, 8, 4]
     SNAKES_PER_GENERATION = 500
-    MUTATION_CHANCE = 0.05
+    MUTATION_CHANCE = 0.01
     AI_ACTIVE = True
 
     # Debug if AI is deactivated
@@ -38,7 +39,7 @@ class Snake(tk.Canvas):
     TEXT_SIZE = 20
     BORDER_SIZE = 7
     GENERATION = 0
-    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
+    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 400
 
     def __init__(self, statsWindow):
         super().__init__(
@@ -239,11 +240,17 @@ class Snake(tk.Canvas):
             self.after(Snake.GAME_SPEED, self.performActions)
 
     def loadAssets(self):
+        # When creating executable, assets are located in sys._MEIPASS temp folder
+        if hasattr(sys, "_MEIPASS"):
+            datadir = sys._MEIPASS + "/assets/"  # pylint: disable=no-member
+        else:
+            datadir = "./assets"
+
         try:
-            self.snakeBodyImage = Image.open("./assets/snake.png")
+            self.snakeBodyImage = Image.open(datadir + "snake.png")
             self.snakeBody = ImageTk.PhotoImage(self.snakeBodyImage)
 
-            self.foodImage = Image.open("./assets/food.png")
+            self.foodImage = Image.open(datadir + "food.png")
             self.food = ImageTk.PhotoImage(self.foodImage)
         except IOError as error:
             print(error)

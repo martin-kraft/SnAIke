@@ -75,8 +75,8 @@ class DNA():
                 biggestValue = self.outputVector[i]
                 index = i
         switch = {0: "Left",
-                  1: "Right",
-                  2: "Forward"}
+                  1: "Forward",
+                  2: "Right"}
         return snakeUtil.convertDirectionRelativeToSnake(direction, switch.get(index))
 
     # Taking a list of numbers which stand for the numbers of neurons for the specific layer.
