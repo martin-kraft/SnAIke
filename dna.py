@@ -20,7 +20,7 @@ class DNA():
         self.selectedFunctions = selectedFunctions
         # Create matrix (brain) for this particular snake
         if len(matrices) == 0:
-            # Random
+            # Random for the first generation
             # self.weightMatrixHiddenLayerOne, self.weightMatrixOutput = self.createWeightMatrix()
             self.neuralNetwork = self.createNeuralNetwork()
         else:

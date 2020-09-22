@@ -1,9 +1,9 @@
 import math
 import numpy as np
+
+
 # Calculates the angle from the head to the food and
 # which is then represented from -1 to 1 (-1 left, 0 straight forward, 1 right)
-
-
 def calcDegree(snakeX, snakeY, foodX, foodY, direction):
     calc = math.atan2(snakeY - foodY, snakeX - foodX)
     switch = {
@@ -15,9 +15,8 @@ def calcDegree(snakeX, snakeY, foodX, foodY, direction):
     return math.sin(calc + switch.get(direction))
 
 
-# Returns 1 if a wall or body part is on the left side of the snake's head or 0 if it is clear,
-# in relation to the moving direction
-# If the snake is moving "down", then the right side is checked (from the players perspective)
+# Returns distance between the snake's head to the wall or body part relative to the snakes directions.
+# Distance = tiles before collision + 1 / panelSize
 def checkLeft(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
     result = 0
     snakeX, snakeY = snakePositions[0]
@@ -27,15 +26,21 @@ def checkLeft(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
         "Up": (-panelSize, 0),
         "Down": (panelSize, 0)
     }
-    switchX, switchY = switch.get(direction)
-    leftHeadPosition = (snakeX + switchX, snakeY + switchY)
-    leftHeadPositionX, leftHeadPositionY = leftHeadPosition
 
-    if (leftHeadPosition in snakePositions[1:] or
-            leftHeadPositionX in (0, BOARD_SIZE) or
-            leftHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
-        result = 1
-    return result
+    switchX, switchY = switch.get(direction)
+    targetHit = False
+    while not targetHit:
+        futureHeadPosition = snakeX + \
+            switchX, snakeY + switchY
+        futureHeadPositionX, futureHeadPositionY = futureHeadPosition
+        if not (futureHeadPosition in snakePositions[1:] or
+                futureHeadPositionX in (0, BOARD_SIZE) or
+                futureHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
+            result += 1
+            snakeX, snakeY = futureHeadPositionX, futureHeadPositionY
+        else:
+            targetHit = True
+    return result / panelSize
 
 
 def checkRight(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
@@ -48,14 +53,19 @@ def checkRight(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
         "Down": (-panelSize, 0)
     }
     switchX, switchY = switch.get(direction)
-    leftHeadPosition = (snakeX + switchX, snakeY + switchY)
-    leftHeadPositionX, leftHeadPositionY = leftHeadPosition
-
-    if (leftHeadPosition in snakePositions[1:] or
-            leftHeadPositionX in (0, BOARD_SIZE) or
-            leftHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
-        result = 1
-    return result
+    targetHit = False
+    while not targetHit:
+        futureHeadPosition = snakeX + \
+            switchX, snakeY + switchY
+        futureHeadPositionX, futureHeadPositionY = futureHeadPosition
+        if not (futureHeadPosition in snakePositions[1:] or
+                futureHeadPositionX in (0, BOARD_SIZE) or
+                futureHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
+            result += 1
+            snakeX, snakeY = futureHeadPositionX, futureHeadPositionY
+        else:
+            targetHit = True
+    return result / panelSize
 
 
 def checkForward(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
@@ -67,15 +77,21 @@ def checkForward(snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, direction):
         "Up": (0, -panelSize),
         "Down": (0, panelSize)
     }
-    switchX, switchY = switch.get(direction)
-    leftHeadPosition = (snakeX + switchX, snakeY + switchY)
-    leftHeadPositionX, leftHeadPositionY = leftHeadPosition
 
-    if (leftHeadPosition in snakePositions[1:] or
-            leftHeadPositionX in (0 - panelSize, BOARD_SIZE) or
-            leftHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
-        result = 1
-    return result
+    switchX, switchY = switch.get(direction)
+    targetHit = False
+    while not targetHit:
+        futureHeadPosition = snakeX + \
+            switchX, snakeY + switchY
+        futureHeadPositionX, futureHeadPositionY = futureHeadPosition
+        if not (futureHeadPosition in snakePositions[1:] or
+                futureHeadPositionX in (0 - panelSize, BOARD_SIZE) or
+                futureHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
+            result += 1
+            snakeX, snakeY = futureHeadPositionX, futureHeadPositionY
+        else:
+            targetHit = True
+    return result / panelSize
 
 
 # Convert direction relative to snake's current direction
@@ -103,6 +119,31 @@ def convertDirectionRelativeToSnake(direction, newDirection):
     else:
         result = "Forward"
     return result
+
+
+# This function checks for obstructions from the snakes head.
+# viewAngles
+# def checkForObstacles(direction, snakePositions, panelSize, BOARD_SIZE, TEXT_SIZE, viewAngles=4):
+#     result = []
+#     snakeHeadX, snakeHeadY = snakePositions[0]
+#     switch = {
+#         "Right": (panelSize, 0),
+#         "Left": (-panelSize, 0),
+#         "Up": (0, -panelSize),
+#         "Down": (0, panelSize)
+#     }
+#     # Irgendeine Funktion finden; S I N U S?
+#     for _, value in switch.items():
+#         switchX, switchY = value
+#         targetHit = False
+#         tilesBeforeHit = 0
+#         while not targetHit:
+#             futureHeadPosition = (snakeHeadX + switchX, snakeHeadY + switchY)
+#             futureHeadPositionX, futureHeadPositionY = futureHeadPosition
+#             if (value in snakePositions[1:] or
+#                 futureHeadPositionX in (0 - panelSize, BOARD_SIZE) or
+#                     futureHeadPositionY in (TEXT_SIZE, BOARD_SIZE + TEXT_SIZE)):
+#                 pass
 
 
 def sigmmoid(x):

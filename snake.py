@@ -16,8 +16,8 @@ FILE_NAME = "Result.txt"
 class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
-    SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
-    NN_STRUCTURE = [4, 16, 4, 3]  # Input and output inclusive
+    SELECTED_FUNCTIONS = ["RECTIFIER", "RECTIFIER", "SIGMOID"]
+    NN_STRUCTURE = [4, 20, 12, 3]  # Input and output inclusive
     RANK_SECTORS = [30, 20, 15, 13, 10, 8, 4]
     SNAKES_PER_GENERATION = 500
     MUTATION_CHANCE = 0.01
@@ -26,9 +26,9 @@ class Snake(tk.Canvas):
     # Debug if AI is deactivated
     # Possible options: "INPUT", "OUTPUT", "NN"
     PRINTOUT = [
-        # "INPUT"
-        # , "OUTPUT"
-        # "NN"
+        "INPUT"
+        # ,"OUTPUT"
+        # ,"NN"
     ]
 
     # Game settings
@@ -39,7 +39,7 @@ class Snake(tk.Canvas):
     TEXT_SIZE = 20
     BORDER_SIZE = 7
     GENERATION = 0
-    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 400
+    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
 
     def __init__(self, statsWindow):
         super().__init__(
@@ -244,7 +244,7 @@ class Snake(tk.Canvas):
         if hasattr(sys, "_MEIPASS"):
             datadir = sys._MEIPASS + "/assets/"  # pylint: disable=no-member
         else:
-            datadir = "./assets"
+            datadir = "./assets/"
 
         try:
             self.snakeBodyImage = Image.open(datadir + "snake.png")
