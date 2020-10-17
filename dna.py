@@ -43,11 +43,11 @@ class DNA():
         self.inputVector = []
 
         ############################# Collision #############################
-        self.inputVector.append(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.extend(snakeUtil.checkLeft(snakePositions, board.MOVE_INCREMENT,
                                                     board.BOARD_SIZE, board.TEXT_SIZE, direction))
-        self.inputVector.append(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.extend(snakeUtil.checkRight(snakePositions, board.MOVE_INCREMENT,
                                                      board.BOARD_SIZE, board.TEXT_SIZE, direction))
-        self.inputVector.append(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
+        self.inputVector.extend(snakeUtil.checkForward(snakePositions, board.MOVE_INCREMENT,
                                                        board.BOARD_SIZE, board.TEXT_SIZE, direction))
 
         ############################# Angle -1 to 1 #############################

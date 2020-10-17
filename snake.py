@@ -16,17 +16,17 @@ FILE_NAME = "Result.txt"
 class Snake(tk.Canvas):
     # NN settings
     ACTIVATION_FUNCTIONS = ["SIGMOID", "TANH", "RECTIFIER"]
-    SELECTED_FUNCTIONS = ["RECTIFIER", "RECTIFIER", "SIGMOID"]
-    NN_STRUCTURE = [4, 20, 12, 3]  # Input and output inclusive
+    SELECTED_FUNCTIONS = ["TANH", "TANH", "TANH"]
+    NN_STRUCTURE = [7, 10, 6, 3]  # Input and output inclusive
     RANK_SECTORS = [30, 20, 15, 13, 10, 8, 4]
     SNAKES_PER_GENERATION = 500
     MUTATION_CHANCE = 0.01
-    AI_ACTIVE = True
+    AI_ACTIVE = False
 
     # Debug if AI is deactivated
     # Possible options: "INPUT", "OUTPUT", "NN"
     PRINTOUT = [
-        "INPUT"
+        # "INPUT"
         # ,"OUTPUT"
         # ,"NN"
     ]
@@ -39,7 +39,7 @@ class Snake(tk.Canvas):
     TEXT_SIZE = 20
     BORDER_SIZE = 7
     GENERATION = 0
-    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 100
+    ADDED_STEPS_AFTER_FOOD_IS_FOUND = 400
 
     def __init__(self, statsWindow):
         super().__init__(
@@ -230,13 +230,13 @@ class Snake(tk.Canvas):
             self.snakePositions, self.foodPosition, self.direction, self)
         if not Snake.AI_ACTIVE:
             nextDecision = None
-            Snake.GAME_SPEED = 250
+            Snake.GAME_SPEED = 100
             self.debug()
 
         self.moveSnake(nextDecision)
         self.checkFoodCollision()
         self.createScore()
-        if shouldRun:  # TODO: MAINLOOP STILL RUNS
+        if shouldRun:
             self.after(Snake.GAME_SPEED, self.performActions)
 
     def loadAssets(self):
